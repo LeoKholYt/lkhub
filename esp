@@ -122,3 +122,5 @@ function ESP:addESP(a,settings)
 	
 	return newESP
 end
+
+return ESP
