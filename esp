@@ -38,23 +38,7 @@ function ESP:addESP(a,settings)
 	distance.TextScaled = true
 	distance.TextStrokeTransparency = 0.5
 	
-	if a == "player" then
-		local function characterAdded(char)
-			newESP:AddObject(char)
-		end
-		table.insert(newESP.connections,
-			P.PlayerAdded:Connect(function(p)
-				if p.Character then characterAdded(p.Character) end
-				table.insert(newESP.connections,p.CharacterAdded:Connect(characterAdded))
-			end)
-		)
-		for i,p in pairs(P:GetPlayers()) do
-			if settings.nolplr and p ~= plr or not settings.nolplr then
-				if p.Character then characterAdded(p.Character) end
-				table.insert(newESP.connections,p.CharacterAdded:Connect(characterAdded))
-			end
-		end
-	end
+	
 	
 	function newESP:AddObject(object,title)
 		if not self.espList[object] then
@@ -118,6 +102,24 @@ function ESP:addESP(a,settings)
 			v:Disconnect()
 		end
 		self.stop = true
+	end
+	
+	if a == "player" then
+		local function characterAdded(char)
+			newESP:AddObject(char)
+		end
+		table.insert(newESP.connections,
+			P.PlayerAdded:Connect(function(p)
+				if p.Character then characterAdded(p.Character) end
+				table.insert(newESP.connections,p.CharacterAdded:Connect(characterAdded))
+			end)
+		)
+		for i,p in pairs(P:GetPlayers()) do
+			if settings.nolplr and p ~= plr or not settings.nolplr then
+				if p.Character then characterAdded(p.Character) end
+				table.insert(newESP.connections,p.CharacterAdded:Connect(characterAdded))
+			end
+		end
 	end
 	
 	return newESP
