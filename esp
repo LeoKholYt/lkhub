@@ -1,0 +1,124 @@
+-- Made by LeoKhol#9369
+
+local ESP = {}
+local P = game:GetService("Players")
+function ESP:addESP(a,settings)
+	settings = settings or {}
+	local plr = P.LocalPlayer
+	local newESP = {
+		espList = {},
+		
+		stop = false,
+		connections = {}
+	}
+	
+	
+	local highlight = Instance.new("Highlight")
+	highlight.FillColor = settings.Color or highlight.FillColor
+	highlight.OutlineTransparency = settings.Outline and 0 or 1
+	
+	local tag = Instance.new("BillboardGui")
+	tag.Size = UDim2.new(1.5,20,0.5,10)
+	tag.AlwaysOnTop = true
+	local title = Instance.new("TextLabel",tag)
+	title.Name = "Title"
+	title.Size = UDim2.new(1,0,0.6,0)
+	title.BackgroundTransparency = 1
+	title.Font = Enum.Font.Gotham
+	title.TextColor3 = settings.Color or highlight.FillColor
+	title.TextScaled = true
+	title.TextStrokeTransparency = 0.5
+	local distance = Instance.new("TextLabel",tag)
+	distance.Name = "Distance"
+	distance.Size = UDim2.new(1,0,0.4,0)
+	distance.Position = UDim2.new(1,0,0.6,0)
+	distance.BackgroundTransparency = 1
+	distance.Font = Enum.Font.Gotham
+	distance.TextColor3 = settings.Color or highlight.FillColor
+	distance.TextScaled = true
+	distance.TextStrokeTransparency = 0.5
+	
+	if a == "player" then
+		local function characterAdded(char)
+			newESP:AddObject(char)
+		end
+		table.insert(newESP.connections,
+			P.PlayerAdded:Connect(function(p)
+				if p.Character then characterAdded(p.Character) end
+				table.insert(newESP.connections,p.CharacterAdded:Connect(characterAdded))
+			end)
+		)
+		for i,p in pairs(P:GetPlayers()) do
+			if settings.nolplr and p ~= plr or not settings.nolplr then
+				if p.Character then characterAdded(p.Character) end
+				table.insert(newESP.connections,p.CharacterAdded:Connect(characterAdded))
+			end
+		end
+	end
+	
+	function newESP:AddObject(object,title)
+		if not self.espList[object] then
+			local part = object:FindFirstChildOfClass("BasePart") or object:FindFirstChildOfClass("UnionOperation") or object:FindFirstChildOfClass("MeshPart") or object or object.PrimaryPart			
+			local distance = part and plr:DistanceFromCharacter(part.Position)
+			
+			local hl = highlight:Clone()
+			hl.Parent = object
+			
+			local ui = tag:Clone()
+			ui.Title.Text = title or object.Name
+			ui.Title.Distance.Text = distance and (distance.."m") or ""
+			
+			self.espList[object] = {hl=hl,ui}
+			
+			coroutine.wrap(function()
+				while part and self.espList[object] and not self.stop do
+					task.wait(.5)
+					--if self.stop then break end
+					distance = part and plr:DistanceFromCharacter(part.Position)
+					ui.Title.Distance.Text = distance and (distance.."m") or ""
+				end
+			end)()
+		end
+	end
+	
+	function newESP:RemoveObject(object)
+		if self.espList[object] then
+			self.espList[object].hl:Destroy()
+			self.espList[object].ui:Destroy()
+			self.espList[object] = nil
+		end
+	end
+	
+	function newESP:ChangeSettings(newSettings)
+		settings = newSettings
+		highlight.FillColor = settings.Color or highlight.FillColor
+		highlight.OutlineTransparency = settings.Outline and 0 or 1
+		title.TextColor3 = settings.Color or highlight.FillColor
+		distance.TextColor3 = settings.Color or highlight.FillColor
+		
+		for i,v in pairs(self.espList) do
+			v.hl.FillColor = settings.Color or highlight.FillColor
+			v.hl.OutlineTransparency = settings.Outline and 0 or 1
+			v.ui.Title.TextColor3 = settings.Color or highlight.FillColor
+			v.ui.Distance.TextColor3 = settings.Color or highlight.FillColor
+		end
+	end
+	function newESP:Value(val)
+		for i,v in pairs(self.espList) do
+			v.hl.Enabled = val
+			v.ui.Enabled = val
+		end
+	end
+	
+	function newESP:Destroy()
+		for i,v in pairs(newESP.espList) do
+			self:RemoveObject(i)
+		end
+		for i,v in pairs(newESP.connections) do
+			v:Disconnect()
+		end
+		self.stop = true
+	end
+	
+	return newESP
+end
