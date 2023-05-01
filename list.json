@@ -26,5 +26,7 @@
   "9015014224":{"name":"Slap Battles","s":"slapbattles.lua"},
   "9534337535":{"name":"Shrek in the Backrooms","s":"shrek-backrooms.lua"},
   "11729688377":{"name":"Booga Reborn","s":"boogareborn.lua"},
-  "11879754496":{"name":"Booga Reborn Void","s":"boogareborn.lua"}
+  "11879754496":{"name":"Booga Reborn Void","s":"boogareborn.lua"},
+  "9872472334":{"name":"Evade","s":"evade.lua"},
+  "893973440":{"name":"Flee The Facility","s":"flee_the_facility.lua"}
 }
